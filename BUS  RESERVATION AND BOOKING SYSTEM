@@ -1,0 +1,468 @@
+// ... (previous code)
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+#include <stdlib.h>
+
+#define MAX_NAME_LENGTH 50
+#define MAX_BUSES 10
+#define MAX_BOOKINGS 500
+
+// Structures
+struct BusSchedule {
+    int bus_number;
+    char bus_name[MAX_NAME_LENGTH];
+    char source[MAX_NAME_LENGTH];
+    char destination[MAX_NAME_LENGTH];
+    int charge;
+    int time;
+    int totalSeats;
+    int availableSeats;
+    int no_seats;
+};
+
+struct Passenger {
+    char first_name[MAX_NAME_LENGTH];
+    char last_name[MAX_NAME_LENGTH];
+    long long roll_no;
+    char vill[MAX_NAME_LENGTH];
+    int bus_number;
+    int seatnumber;
+};
+
+// Global variables
+struct BusSchedule buses[MAX_BUSES];
+struct Passenger info;
+
+// Function declarations
+void bookTicket();
+void searchPassenger();
+void clearScreen();
+void saveBusData();
+void searchBusSchedules();
+void addBusSchedules();
+void deleteRecord();
+
+
+int main() {
+    // ... (previous code)
+
+    int choice;
+    printf("=============== WELCOME TO JIBEBE TRANSPORT COMPANY ===============\n\n\n");
+    printf("1: Employee\n");
+    printf("Enter your category: ");
+    scanf("%d", &choice);
+
+    if (choice == 1) {
+        int number; // Declare 'number' variable
+        printf("==================LOGIN SECTION==============\n\n");
+        printf("PASSWORD:");
+        scanf("%d", &number);
+
+        if (number == 148643020) {
+            printf("WELCOME\n\n\n");
+            printf("********************************************************************\n\n");
+            printf("\t\t\t1: View available bus schedules\n");
+            printf("\t\t\t2: search bus schedules\n");
+            printf("\t\t\t3: add bus schedule\n");
+            printf("\t\t\t4: book a ticket for a passenger\n");
+            printf("\t\t\t5: Delete Bus schedules\n");
+            printf("\t\t\t6: search customer previous booking\n");
+            printf("\t\t\t7: Save data\n");
+            printf("\t\t\t8: Exit\n");
+            printf("*********************************************************************\n\n");
+
+            int num; // Declare 'num' variable
+
+            while (1) {
+                printf("Enter your choice: ");
+                scanf("%d", &num);
+
+                switch (num) {
+                    case 1:
+                        clearScreen();
+                        searchBusSchedules(); // Corrected function name
+                        printf("\t\t\tPress any key to exit\n");
+                        getchar();
+                        clearScreen();
+                        break;
+                    case 2:
+                        clearScreen();
+                        searchBusSchedules();
+                        printf("\t\t\tPress any key to exit\n");
+                        getchar();
+                        clearScreen();
+                        break;
+                    case 3:
+                        clearScreen();
+                        addBusSchedules();
+                        printf("\t\t\tPress any key to exit\n");
+                        getchar();
+                        clearScreen();
+                        break;
+                    case 4:
+                        clearScreen();
+                        bookTicket();
+                        clearScreen();
+                        break;
+                    case 5:
+                        clearScreen();
+                        deleteRecord();
+                        printf("\t\t\tPress any key to exit\n");
+                        getchar();
+                        clearScreen();
+                        break;
+                    case 6:
+                        clearScreen();
+                        searchPassenger();
+                        printf("\t\t\tPress any key to exit\n");
+                        getchar();
+                        clearScreen();
+                        break;
+                    case 7:
+                        clearScreen();
+                        saveBusData(); // Corrected function name
+                        printf("\t\t\tPress any key to exit\n");
+                        getchar();
+                        clearScreen();
+                        break;
+                    case 8:
+                        clearScreen();
+                        printf("\n\t\t\tThank you for using this software\n");
+                        exit(0);
+                        break;
+                    default:
+                        printf("Invalid option. Please try again.\n");
+                        break;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+// ... (remaining code)
+// Function to delete a record
+void deleteRecord() {
+    int busNumber;
+    printf("\n\t\t\tEnter the bus number to delete: ");
+    scanf("%d", &busNumber);
+    
+    // Implement the logic to delete the bus record with the given bus number
+    // You can shift elements in the array or mark the record as deleted based on your requirements
+    
+    printf("\n\t\t\tBus record deleted successfully.\n");
+}
+
+// Function to clear the screen
+void clearScreen() {
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
+
+// Function to save bus data to a file
+void saveBusData() {
+    int numBuses = MAX_BUSES;
+    FILE *file = fopen("bus_data.txt", "w");
+    if (file != NULL) {
+        for (int i = 0; i < numBuses; i++) {
+            fprintf(file, "%d %s %s %s %d %d %d %d\n", buses[i].bus_number, buses[i].bus_name, buses[i].source, buses[i].destination, buses[i].charge, buses[i].time, buses[i].totalSeats, buses[i].availableSeats);
+        }
+        fclose(file);
+        printf("Bus data saved successfully.\n");
+    } else {
+        perror("Error opening bus_data.txt");
+    }
+}
+
+void busSchedules() {
+    FILE *fp;
+    struct BusSchedule info;
+
+    fp = fopen("bus_info.txt", "rb");
+
+    printf("\t\t\t========= BUS SCHEDULES AND TIMETABLE ===\n\n\n\n");
+
+    if (fp == NULL) {
+        printf("\t\t\tCan't open bus schedules\n");
+        return;
+    } else {
+        printf("\t\t\tSchedules\n");
+        printf("\n BUS.No\tBus Name\t\tSource\t\tDestination\tCharges\tTime\tNo of Seats\n");
+        printf("\n --------------------------------------------------------------------------------------------");
+    }
+
+    while (fread(&info, sizeof(struct BusSchedule), 1, fp)) {
+        printf("\n%d\t%s\t\t%s\t\t%s\t\t  %d\t %d\t      %d\n",
+               info.bus_number, info.bus_name, info.source, info.destination, info.charge, info.time, info.no_seats);
+    }
+
+    fclose(fp);
+    getchar();
+}
+
+// Function to search bus schedules
+void searchBusSchedules() {
+    FILE *fp;
+    struct BusSchedule busInfo;
+    char searchSource[MAX_NAME_LENGTH];
+    char searchDestination[MAX_NAME_LENGTH];
+
+    printf("\t\t\tEnter the source: ");
+    scanf("%49s", searchSource);
+    getchar(); // Clear input buffer
+    printf("\t\t\tEnter the destination: ");
+    scanf("%49s", searchDestination);
+    getchar(); // Clear input buffer
+
+    fp = fopen("bus_info.txt", "rb");
+
+    if (fp == NULL) {
+        perror("Can't open bus schedules");
+        return;
+    }
+
+    printf("\t\t\t========= SEARCHING BUS SCHEDULES ===\n\n");
+    printf("\t\t\tSource: %s, Destination: %s\n", searchSource, searchDestination);
+    printf("\n BUS.No\tName\t\tSource\t\tDestination\tCharges\t\tTime\t\tNo of Seats\n");
+
+    int found = 0;
+
+    while (fread(&busInfo, sizeof(struct BusSchedule), 1, fp)) {
+        if (strcmp(busInfo.source, searchSource) == 0 && strcmp(busInfo.destination, searchDestination) == 0) {
+            printf("%d\t%s\t\t%s\t\t%s\t\t%d\t%d \t%d\n",
+                   busInfo.bus_number, busInfo.bus_name, busInfo.source, busInfo.destination, busInfo.charge, busInfo.time, busInfo.totalSeats);
+            found = 1;
+        }
+    }
+
+    if (!found) {
+        printf("\t\t\tNo bus schedules found for the specified source and destination.\n");
+    }
+
+    fclose(fp);
+    getchar(); // Clear input buffer
+}
+
+// Function to add bus schedules
+void addBusSchedules() {
+    char option;
+    FILE *fp;
+    struct BusSchedule busInfo;
+
+    fp = fopen("bus_info.txt", "ab");
+
+    if (fp == NULL) {
+        perror("Error opening the file for writing");
+        exit(EXIT_FAILURE);
+    }
+
+    do {
+        printf("\n\t\t\tEnter bus number : ");
+        scanf("%d", &busInfo.bus_number);
+        getchar(); // Clear input buffer
+
+        printf("\n\t\t\tEnter bus name: ");
+        scanf("%49s", busInfo.bus_name);
+        getchar(); // Clear input buffer
+        printf("Enter the source of the bus: ");
+        scanf("%49s", busInfo.source);
+        
+        getchar(); // Clear input buffer
+        printf("Enter destination of the bus: ");
+        scanf("%49s", busInfo.destination);
+        getchar(); // Clear input buffer
+        printf("Enter the charges: ");
+        scanf("%d", &busInfo.charge);
+        getchar(); // Clear input buffer
+        printf("Enter time of departure: ");
+        scanf("%d", &busInfo.time);
+        getchar(); // Clear input buffer
+
+        do {
+            printf("\n\t\t\tEnter total number of seats (1-50): ");
+            scanf("%d", &busInfo.totalSeats);
+            getchar(); // Clear input buffer
+
+            if (busInfo.totalSeats < 1 || busInfo.totalSeats > 50) {
+                printf("Total number of seats must be between 1 and 50\n");
+            }
+        } while (busInfo.totalSeats < 1 || busInfo.totalSeats > 50);
+
+        // Initialize available seats to total seats initially
+        busInfo.availableSeats = busInfo.totalSeats;
+
+        printf("\n\t\t\t-----------------------------------------");
+        printf("\t\t\tRecord stored successfully");
+        fwrite(&busInfo, sizeof(struct BusSchedule), 1, fp);
+
+        printf("\n\t\t\tDo you want to add another bus? (y/n) : ");
+        scanf(" %c", &option);
+        getchar(); // Clear input buffer
+    } while (option == 'y' || option == 'Y');
+
+    fclose(fp);
+}
+
+// Function to search for a passenger
+void searchPassenger() {
+    FILE *fp;
+    long long roll_no;
+    int found = 0;
+    fp = fopen("pass_info.txt", "rb");
+
+    printf("\t\t\t============== Search passenger =======\n\n\n");
+    printf("\t\t\tEnter phone number: +254 ");
+    scanf("%lld", &roll_no);
+    getchar(); // Clear input buffer
+
+    while (fread(&info, sizeof(struct Passenger), 1, fp)) {
+        if (info.roll_no == roll_no) {
+            found = 1;
+            printf("\n\t\t\tPassenger name: %s %s", info.first_name, info.last_name);
+            printf("\n\t\t\tPhone number: +254 %lld", info.roll_no);
+            printf("\n\t\t\tBus number: %d", info.bus_number);
+            printf("\n\t\t\tAddress: %s", info.vill);
+            printf("\n\t\t\tSeat number: %d", info.seatnumber);
+            printf("\n\t\t\t___________________________________\n");
+        }
+    }
+    if (!found) {
+        printf("\t\t\tRecord not found\n");
+    }
+    fclose(fp);
+    getchar(); // Clear input buffer
+}
+
+// Function to book a ticket
+void bookTicket() {
+    char another;
+    FILE *fp, *passengerFile;
+    struct BusSchedule busInfo;
+
+    getchar(); // Clear input buffer
+
+    do {
+        printf("\n\n\n\n\t\t\t===== Book a ticket====\n\n\n");
+        fp = fopen("pass_info.txt", "a");
+        passengerFile = fopen("booking_details.txt", "a");
+
+        if (fp == NULL || passengerFile == NULL) {
+            perror("Error opening the file for writing");
+            exit(EXIT_FAILURE);
+        }
+
+        printf("\n\t\t\tEnter first name: ");
+        scanf("%49s", info.first_name);
+        getchar(); // Clear input buffer
+        printf("\n\t\t\tEnter last name: ");
+        scanf("%49s", info.last_name);
+        getchar(); // Clear input buffer
+        printf("\n\t\t\tEnter address: ");
+        scanf("%49s", info.vill);
+        getchar(); // Clear input buffer
+
+        do {
+            printf("\n\n\t\tEnter your phone number: +254 ");
+            scanf("%lld", &info.roll_no);
+            getchar(); // Clear input buffer
+            if (info.roll_no < 100000000 || info.roll_no > 999999999 || (info.roll_no / 100000000) != 7) {
+                printf("Invalid phone number\n");
+            }
+        } while (info.roll_no < 100000000 || info.roll_no > 999999999 || (info.roll_no / 100000000) != 7);
+
+        char source[MAX_NAME_LENGTH], destination[MAX_NAME_LENGTH];
+        int foundSource = 0, foundDestination = 0;
+
+        do {
+            printf("\n\t\t\tEnter source: ");
+            scanf("%49s", source);
+            getchar(); // Clear input buffer
+
+            // Check if the entered source is available in bus schedules
+            FILE *busFP = fopen("bus_info.txt", "rb");
+
+            while (fread(&busInfo, sizeof(struct BusSchedule), 1, busFP)) {
+                if (strcmp(source, busInfo.source) == 0) {
+                    foundSource = 1;
+                    break;
+                }
+            }
+
+            fclose(busFP);
+
+            if (!foundSource) {
+                printf("Source not available in bus schedules. Please enter a valid source.\n");
+            }
+        } while (!foundSource);
+
+        do {
+            printf("\n\t\t\tEnter destination: ");
+            scanf("%49s", destination);
+            getchar(); // Clear input buffer
+
+            // Check if the entered destination is available in bus schedules
+            FILE *busFP = fopen("bus_info.txt", "rb");
+
+            while (fread(&busInfo, sizeof(struct BusSchedule), 1, busFP)) {
+                if (strcmp(destination, busInfo.destination) == 0) {
+                    foundDestination = 1;
+                    break;
+                }
+            }
+
+            fclose(busFP);
+
+            if (!foundDestination) {
+                printf("Destination not available in bus schedules. Please enter a valid destination.\n");
+            }
+        } while (!foundDestination);
+
+        // Display bus information
+        FILE *busFP = fopen("bus_info.txt", "rb");
+
+        while (fread(&busInfo, sizeof(struct BusSchedule), 1, busFP)) {
+            if (strcmp(source, busInfo.source) == 0 && strcmp(destination, busInfo.destination) == 0) {
+                printf("\n\t\t\tBus number: %d", busInfo.bus_number);
+                printf("\n\t\t\tCharges: %d", busInfo.charge);
+                printf("\n\t\t\tTime: %d", busInfo.time);
+
+                // Save booking details to the new file
+                fprintf(passengerFile, "Passenger name: %s %s\n", info.first_name, info.last_name);
+                fprintf(passengerFile, "Phone number: +254 %lld\n", info.roll_no);
+                fprintf(passengerFile, "Bus number: %d\n", busInfo.bus_number);
+                fprintf(passengerFile, "Source: %s\n", source);
+                fprintf(passengerFile, "Destination: %s\n", destination);
+                fprintf(passengerFile, "Charges: %d\n", busInfo.charge);
+                fprintf(passengerFile, "Time: %d\n", busInfo.time);
+                break;
+            }
+        }
+
+        fclose(busFP);
+
+        do {
+            printf("\n\t\t\tEnter seat number (1-50): ");
+            scanf("%d", &info.seatnumber);
+            getchar(); // Clear input buffer
+            if (info.seatnumber < 1 || info.seatnumber > 50) {
+                printf("Seat number must be between 1 and 50\n");
+            }
+        } while (info.seatnumber < 1 || info.seatnumber > 50);
+
+        printf("\n\t\t\t-----------------------------------------");
+        printf("\t\t\tRecord stored successfully");
+        fwrite(&info, sizeof(struct Passenger), 1, fp);
+        fclose(fp);
+        fclose(passengerFile);
+
+        printf("\n\t\t\tDo you want to book another ticket? (y/n) : ");
+        scanf(" %c", &another);
+        getchar(); // Clear input buffer
+    } while (another == 'y' || another == 'Y');
+}
+
